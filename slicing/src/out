@@ -1,0 +1,999 @@
+[]
+before read file
+after read file
+node= Script {
+  type: 'Program',
+  body: 
+   [ VariableDeclaration {
+       type: 'VariableDeclaration',
+       declarations: [Array],
+       kind: 'var',
+       range: [Array] },
+     IfStatement {
+       type: 'IfStatement',
+       test: [Object],
+       consequent: [Object],
+       alternate: [Object],
+       range: [Array] },
+     VariableDeclaration {
+       type: 'VariableDeclaration',
+       declarations: [Array],
+       kind: 'var',
+       range: [Array] },
+     IfStatement {
+       type: 'IfStatement',
+       test: [Object],
+       consequent: [Object],
+       alternate: [Object],
+       range: [Array] },
+     FunctionDeclaration {
+       type: 'FunctionDeclaration',
+       id: [Object],
+       params: [],
+       body: [Object],
+       generator: false,
+       expression: false,
+       async: false,
+       range: [Array] } ],
+  sourceType: 'script',
+  range: [ 0, 533 ] }
+nodeStr  Program-0-533
+addToCFG  Program-0-533
+adding new node to cfg
+node= Script {
+  type: 'Program',
+  body: 
+   [ VariableDeclaration {
+       type: 'VariableDeclaration',
+       declarations: [Array],
+       kind: 'var',
+       range: [Array] },
+     IfStatement {
+       type: 'IfStatement',
+       test: [Object],
+       consequent: [Object],
+       alternate: [Object],
+       range: [Array] },
+     VariableDeclaration {
+       type: 'VariableDeclaration',
+       declarations: [Array],
+       kind: 'var',
+       range: [Array] },
+     IfStatement {
+       type: 'IfStatement',
+       test: [Object],
+       consequent: [Object],
+       alternate: [Object],
+       range: [Array] },
+     FunctionDeclaration {
+       type: 'FunctionDeclaration',
+       id: [Object],
+       params: [],
+       body: [Object],
+       generator: false,
+       expression: false,
+       async: false,
+       range: [Array] } ],
+  sourceType: 'script',
+  range: [ 0, 533 ] }
+nodeStr  Program-0-533
+node= VariableDeclaration {
+  type: 'VariableDeclaration',
+  declarations: 
+   [ VariableDeclarator {
+       type: 'VariableDeclarator',
+       id: [Object],
+       init: [Object],
+       range: [Array] } ],
+  kind: 'var',
+  range: [ 0, 33 ] }
+nodeStr  VariableDeclaration-0-33
+addToCFG  VariableDeclaration-0-33
+adding new node to cfg
+adding parent  Program-0-533
+visit IfStatement
+node= IfStatement {
+  type: 'IfStatement',
+  test: 
+   BinaryExpression {
+     type: 'BinaryExpression',
+     operator: '<',
+     left: Identifier { type: 'Identifier', name: 'time', range: [Array] },
+     right: Literal { type: 'Literal', value: 20, raw: '20', range: [Array] },
+     range: [ 40, 49 ] },
+  consequent: BlockStatement { type: 'BlockStatement', body: [ [Object] ], range: [ 51, 83 ] },
+  alternate: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 89, 125 ] },
+  range: [ 36, 125 ] }
+nodeStr  IfStatement-36-125
+addToCFG  IfStatement-36-125
+adding new node to cfg
+adding parent  VariableDeclaration-0-33
+node= IfStatement {
+  type: 'IfStatement',
+  test: 
+   BinaryExpression {
+     type: 'BinaryExpression',
+     operator: '<',
+     left: Identifier { type: 'Identifier', name: 'time', range: [Array] },
+     right: Literal { type: 'Literal', value: 20, raw: '20', range: [Array] },
+     range: [ 40, 49 ] },
+  consequent: BlockStatement { type: 'BlockStatement', body: [ [Object] ], range: [ 51, 83 ] },
+  alternate: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 89, 125 ] },
+  range: [ 36, 125 ] }
+nodeStr  IfStatement-36-125
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 51, 83 ] }
+nodeStr  BlockStatement-51-83
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 51, 83 ] }
+nodeStr  BlockStatement-51-83
+addToCFG  BlockStatement-51-83
+adding new node to cfg
+adding parent  IfStatement-36-125
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 51, 83 ] }
+nodeStr  BlockStatement-51-83
+node= ExpressionStatement {
+  type: 'ExpressionStatement',
+  expression: 
+   AssignmentExpression {
+     type: 'AssignmentExpression',
+     operator: '=',
+     left: Identifier { type: 'Identifier', name: 'greeting', range: [Array] },
+     right: 
+      Literal {
+        type: 'Literal',
+        value: 'Good day',
+        raw: '"Good day"',
+        range: [Array] },
+     range: [ 58, 79 ] },
+  range: [ 58, 80 ] }
+nodeStr  ExpressionStatement-58-80
+addToCFG  ExpressionStatement-58-80
+adding new node to cfg
+adding parent  BlockStatement-51-83
+isBranching  ExpressionStatement
+isBranching  EndBlockNode
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 89, 125 ] }
+nodeStr  BlockStatement-89-125
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 89, 125 ] }
+nodeStr  BlockStatement-89-125
+addToCFG  BlockStatement-89-125
+adding new node to cfg
+adding parent  IfStatement-36-125
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 89, 125 ] }
+nodeStr  BlockStatement-89-125
+node= ExpressionStatement {
+  type: 'ExpressionStatement',
+  expression: 
+   AssignmentExpression {
+     type: 'AssignmentExpression',
+     operator: '=',
+     left: Identifier { type: 'Identifier', name: 'greeting', range: [Array] },
+     right: 
+      Literal {
+        type: 'Literal',
+        value: 'Good evening',
+        raw: '"Good evening"',
+        range: [Array] },
+     range: [ 96, 121 ] },
+  range: [ 96, 122 ] }
+nodeStr  ExpressionStatement-96-122
+addToCFG  ExpressionStatement-96-122
+adding new node to cfg
+adding parent  BlockStatement-89-125
+isBranching  ExpressionStatement
+isBranching  EndBlockNode
+node= VariableDeclaration {
+  type: 'VariableDeclaration',
+  declarations: 
+   [ VariableDeclarator {
+       type: 'VariableDeclarator',
+       id: [Object],
+       init: [Object],
+       range: [Array] } ],
+  kind: 'var',
+  range: [ 129, 162 ] }
+nodeStr  VariableDeclaration-129-162
+addToCFG  VariableDeclaration-129-162
+adding new node to cfg
+adding parent  Dummy-IfEndBlock-4
+visit IfStatement
+node= IfStatement {
+  type: 'IfStatement',
+  test: 
+   BinaryExpression {
+     type: 'BinaryExpression',
+     operator: '<',
+     left: Identifier { type: 'Identifier', name: 'time', range: [Array] },
+     right: Literal { type: 'Literal', value: 10, raw: '10', range: [Array] },
+     range: [ 169, 178 ] },
+  consequent: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 180, 216 ] },
+  alternate: 
+   IfStatement {
+     type: 'IfStatement',
+     test: 
+      BinaryExpression {
+        type: 'BinaryExpression',
+        operator: '<',
+        left: [Object],
+        right: [Object],
+        range: [Array] },
+     consequent: BlockStatement { type: 'BlockStatement', body: [Array], range: [Array] },
+     alternate: BlockStatement { type: 'BlockStatement', body: [Array], range: [Array] },
+     range: [ 222, 311 ] },
+  range: [ 165, 311 ] }
+nodeStr  IfStatement-165-311
+addToCFG  IfStatement-165-311
+adding new node to cfg
+adding parent  VariableDeclaration-129-162
+node= IfStatement {
+  type: 'IfStatement',
+  test: 
+   BinaryExpression {
+     type: 'BinaryExpression',
+     operator: '<',
+     left: Identifier { type: 'Identifier', name: 'time', range: [Array] },
+     right: Literal { type: 'Literal', value: 10, raw: '10', range: [Array] },
+     range: [ 169, 178 ] },
+  consequent: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 180, 216 ] },
+  alternate: 
+   IfStatement {
+     type: 'IfStatement',
+     test: 
+      BinaryExpression {
+        type: 'BinaryExpression',
+        operator: '<',
+        left: [Object],
+        right: [Object],
+        range: [Array] },
+     consequent: BlockStatement { type: 'BlockStatement', body: [Array], range: [Array] },
+     alternate: BlockStatement { type: 'BlockStatement', body: [Array], range: [Array] },
+     range: [ 222, 311 ] },
+  range: [ 165, 311 ] }
+nodeStr  IfStatement-165-311
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 180, 216 ] }
+nodeStr  BlockStatement-180-216
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 180, 216 ] }
+nodeStr  BlockStatement-180-216
+addToCFG  BlockStatement-180-216
+adding new node to cfg
+adding parent  IfStatement-165-311
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 180, 216 ] }
+nodeStr  BlockStatement-180-216
+node= ExpressionStatement {
+  type: 'ExpressionStatement',
+  expression: 
+   AssignmentExpression {
+     type: 'AssignmentExpression',
+     operator: '=',
+     left: Identifier { type: 'Identifier', name: 'greeting', range: [Array] },
+     right: 
+      Literal {
+        type: 'Literal',
+        value: 'Good morning',
+        raw: '"Good morning"',
+        range: [Array] },
+     range: [ 187, 212 ] },
+  range: [ 187, 213 ] }
+nodeStr  ExpressionStatement-187-213
+addToCFG  ExpressionStatement-187-213
+adding new node to cfg
+adding parent  BlockStatement-180-216
+isBranching  ExpressionStatement
+isBranching  EndBlockNode
+node= IfStatement {
+  type: 'IfStatement',
+  test: 
+   BinaryExpression {
+     type: 'BinaryExpression',
+     operator: '<',
+     left: Identifier { type: 'Identifier', name: 'time', range: [Array] },
+     right: Literal { type: 'Literal', value: 20, raw: '20', range: [Array] },
+     range: [ 226, 235 ] },
+  consequent: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 237, 269 ] },
+  alternate: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 275, 311 ] },
+  range: [ 222, 311 ] }
+nodeStr  IfStatement-222-311
+visit IfStatement
+node= IfStatement {
+  type: 'IfStatement',
+  test: 
+   BinaryExpression {
+     type: 'BinaryExpression',
+     operator: '<',
+     left: Identifier { type: 'Identifier', name: 'time', range: [Array] },
+     right: Literal { type: 'Literal', value: 20, raw: '20', range: [Array] },
+     range: [ 226, 235 ] },
+  consequent: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 237, 269 ] },
+  alternate: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 275, 311 ] },
+  range: [ 222, 311 ] }
+nodeStr  IfStatement-222-311
+addToCFG  IfStatement-222-311
+adding new node to cfg
+adding parent  IfStatement-165-311
+node= IfStatement {
+  type: 'IfStatement',
+  test: 
+   BinaryExpression {
+     type: 'BinaryExpression',
+     operator: '<',
+     left: Identifier { type: 'Identifier', name: 'time', range: [Array] },
+     right: Literal { type: 'Literal', value: 20, raw: '20', range: [Array] },
+     range: [ 226, 235 ] },
+  consequent: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 237, 269 ] },
+  alternate: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 275, 311 ] },
+  range: [ 222, 311 ] }
+nodeStr  IfStatement-222-311
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 237, 269 ] }
+nodeStr  BlockStatement-237-269
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 237, 269 ] }
+nodeStr  BlockStatement-237-269
+addToCFG  BlockStatement-237-269
+adding new node to cfg
+adding parent  IfStatement-222-311
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 237, 269 ] }
+nodeStr  BlockStatement-237-269
+node= ExpressionStatement {
+  type: 'ExpressionStatement',
+  expression: 
+   AssignmentExpression {
+     type: 'AssignmentExpression',
+     operator: '=',
+     left: Identifier { type: 'Identifier', name: 'greeting', range: [Array] },
+     right: 
+      Literal {
+        type: 'Literal',
+        value: 'Good day',
+        raw: '"Good day"',
+        range: [Array] },
+     range: [ 244, 265 ] },
+  range: [ 244, 266 ] }
+nodeStr  ExpressionStatement-244-266
+addToCFG  ExpressionStatement-244-266
+adding new node to cfg
+adding parent  BlockStatement-237-269
+isBranching  ExpressionStatement
+isBranching  EndBlockNode
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 275, 311 ] }
+nodeStr  BlockStatement-275-311
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 275, 311 ] }
+nodeStr  BlockStatement-275-311
+addToCFG  BlockStatement-275-311
+adding new node to cfg
+adding parent  IfStatement-222-311
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 275, 311 ] }
+nodeStr  BlockStatement-275-311
+node= ExpressionStatement {
+  type: 'ExpressionStatement',
+  expression: 
+   AssignmentExpression {
+     type: 'AssignmentExpression',
+     operator: '=',
+     left: Identifier { type: 'Identifier', name: 'greeting', range: [Array] },
+     right: 
+      Literal {
+        type: 'Literal',
+        value: 'Good evening',
+        raw: '"Good evening"',
+        range: [Array] },
+     range: [ 282, 307 ] },
+  range: [ 282, 308 ] }
+nodeStr  ExpressionStatement-282-308
+addToCFG  ExpressionStatement-282-308
+adding new node to cfg
+adding parent  BlockStatement-275-311
+isBranching  ExpressionStatement
+isBranching  EndBlockNode
+isBranching  IfEndBlock
+node= FunctionDeclaration {
+  type: 'FunctionDeclaration',
+  id: Identifier { type: 'Identifier', name: 'changeImage', range: [ 324, 335 ] },
+  params: [],
+  body: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object], [Object] ],
+     range: [ 338, 533 ] },
+  generator: false,
+  expression: false,
+  async: false,
+  range: [ 315, 533 ] }
+nodeStr  FunctionDeclaration-315-533
+addToCFG  FunctionDeclaration-315-533
+adding new node to cfg
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ VariableDeclaration {
+       type: 'VariableDeclaration',
+       declarations: [Array],
+       kind: 'var',
+       range: [Array] },
+     IfStatement {
+       type: 'IfStatement',
+       test: [Object],
+       consequent: [Object],
+       alternate: [Object],
+       range: [Array] } ],
+  range: [ 338, 533 ] }
+nodeStr  BlockStatement-338-533
+addToCFG  BlockStatement-338-533
+adding new node to cfg
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ VariableDeclaration {
+       type: 'VariableDeclaration',
+       declarations: [Array],
+       kind: 'var',
+       range: [Array] },
+     IfStatement {
+       type: 'IfStatement',
+       test: [Object],
+       consequent: [Object],
+       alternate: [Object],
+       range: [Array] } ],
+  range: [ 338, 533 ] }
+nodeStr  BlockStatement-338-533
+node= VariableDeclaration {
+  type: 'VariableDeclaration',
+  declarations: 
+   [ VariableDeclarator {
+       type: 'VariableDeclarator',
+       id: [Object],
+       init: [Object],
+       range: [Array] } ],
+  kind: 'var',
+  range: [ 345, 392 ] }
+nodeStr  VariableDeclaration-345-392
+addToCFG  VariableDeclaration-345-392
+adding new node to cfg
+adding parent  BlockStatement-338-533
+visit IfStatement
+node= IfStatement {
+  type: 'IfStatement',
+  test: 
+   CallExpression {
+     type: 'CallExpression',
+     callee: 
+      StaticMemberExpression {
+        type: 'MemberExpression',
+        computed: false,
+        object: [Object],
+        property: [Object],
+        range: [Array] },
+     arguments: [ [Object] ],
+     range: [ 402, 427 ] },
+  consequent: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 429, 477 ] },
+  alternate: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 483, 530 ] },
+  range: [ 398, 530 ] }
+nodeStr  IfStatement-398-530
+addToCFG  IfStatement-398-530
+adding new node to cfg
+adding parent  VariableDeclaration-345-392
+node= IfStatement {
+  type: 'IfStatement',
+  test: 
+   CallExpression {
+     type: 'CallExpression',
+     callee: 
+      StaticMemberExpression {
+        type: 'MemberExpression',
+        computed: false,
+        object: [Object],
+        property: [Object],
+        range: [Array] },
+     arguments: [ [Object] ],
+     range: [ 402, 427 ] },
+  consequent: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 429, 477 ] },
+  alternate: 
+   BlockStatement {
+     type: 'BlockStatement',
+     body: [ [Object] ],
+     range: [ 483, 530 ] },
+  range: [ 398, 530 ] }
+nodeStr  IfStatement-398-530
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 429, 477 ] }
+nodeStr  BlockStatement-429-477
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 429, 477 ] }
+nodeStr  BlockStatement-429-477
+addToCFG  BlockStatement-429-477
+adding new node to cfg
+adding parent  IfStatement-398-530
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 429, 477 ] }
+nodeStr  BlockStatement-429-477
+node= ExpressionStatement {
+  type: 'ExpressionStatement',
+  expression: 
+   AssignmentExpression {
+     type: 'AssignmentExpression',
+     operator: '=',
+     left: 
+      StaticMemberExpression {
+        type: 'MemberExpression',
+        computed: false,
+        object: [Object],
+        property: [Object],
+        range: [Array] },
+     right: 
+      Literal {
+        type: 'Literal',
+        value: 'pic_bulboff.gif',
+        raw: '"pic_bulboff.gif"',
+        range: [Array] },
+     range: [ 440, 469 ] },
+  range: [ 440, 470 ] }
+nodeStr  ExpressionStatement-440-470
+addToCFG  ExpressionStatement-440-470
+adding new node to cfg
+adding parent  BlockStatement-429-477
+isBranching  ExpressionStatement
+isBranching  EndBlockNode
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 483, 530 ] }
+nodeStr  BlockStatement-483-530
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 483, 530 ] }
+nodeStr  BlockStatement-483-530
+addToCFG  BlockStatement-483-530
+adding new node to cfg
+adding parent  IfStatement-398-530
+node= BlockStatement {
+  type: 'BlockStatement',
+  body: 
+   [ ExpressionStatement {
+       type: 'ExpressionStatement',
+       expression: [Object],
+       range: [Array] } ],
+  range: [ 483, 530 ] }
+nodeStr  BlockStatement-483-530
+node= ExpressionStatement {
+  type: 'ExpressionStatement',
+  expression: 
+   AssignmentExpression {
+     type: 'AssignmentExpression',
+     operator: '=',
+     left: 
+      StaticMemberExpression {
+        type: 'MemberExpression',
+        computed: false,
+        object: [Object],
+        property: [Object],
+        range: [Array] },
+     right: 
+      Literal {
+        type: 'Literal',
+        value: 'pic_bulbon.gif',
+        raw: '"pic_bulbon.gif"',
+        range: [Array] },
+     range: [ 494, 522 ] },
+  range: [ 494, 523 ] }
+nodeStr  ExpressionStatement-494-523
+addToCFG  ExpressionStatement-494-523
+adding new node to cfg
+adding parent  BlockStatement-483-530
+isBranching  ExpressionStatement
+isBranching  EndBlockNode
+isBranching  IfEndBlock
+isBranching  IfEndBlock
+CFG
+====
+__*global_class - __*global_method
+---------
+Program-0-533 :
+parents[
+]
+left: VariableDeclaration-0-33
+right: null
+Dummy-EndBlockNode-1 :
+parents[
+Dummy-IfEndBlock-13
+]
+left: null
+right: null
+VariableDeclaration-0-33 :
+parents[
+Program-0-533
+]
+left: IfStatement-36-125
+right: null
+IfStatement-36-125 :
+parents[
+VariableDeclaration-0-33
+]
+left: BlockStatement-89-125
+right: BlockStatement-89-125
+Dummy-IfEndBlock-4 :
+parents[
+Dummy-EndBlockNode-6
+Dummy-EndBlockNode-9
+]
+left: VariableDeclaration-129-162
+right: null
+BlockStatement-51-83 :
+parents[
+IfStatement-36-125
+]
+left: ExpressionStatement-58-80
+right: null
+Dummy-EndBlockNode-6 :
+parents[
+ExpressionStatement-58-80
+]
+left: Dummy-IfEndBlock-4
+right: null
+ExpressionStatement-58-80 :
+parents[
+BlockStatement-51-83
+]
+left: Dummy-EndBlockNode-6
+right: null
+BlockStatement-89-125 :
+parents[
+IfStatement-36-125
+]
+left: ExpressionStatement-96-122
+right: null
+Dummy-EndBlockNode-9 :
+parents[
+ExpressionStatement-96-122
+]
+left: Dummy-IfEndBlock-4
+right: null
+ExpressionStatement-96-122 :
+parents[
+BlockStatement-89-125
+]
+left: Dummy-EndBlockNode-9
+right: null
+VariableDeclaration-129-162 :
+parents[
+Dummy-IfEndBlock-4
+]
+left: IfStatement-165-311
+right: null
+IfStatement-165-311 :
+parents[
+VariableDeclaration-129-162
+]
+left: IfStatement-222-311
+right: IfStatement-222-311
+Dummy-IfEndBlock-13 :
+parents[
+Dummy-EndBlockNode-15
+Dummy-IfEndBlock-18
+]
+left: Dummy-EndBlockNode-1
+right: null
+BlockStatement-180-216 :
+parents[
+IfStatement-165-311
+]
+left: ExpressionStatement-187-213
+right: null
+Dummy-EndBlockNode-15 :
+parents[
+ExpressionStatement-187-213
+]
+left: Dummy-IfEndBlock-13
+right: null
+ExpressionStatement-187-213 :
+parents[
+BlockStatement-180-216
+]
+left: Dummy-EndBlockNode-15
+right: null
+IfStatement-222-311 :
+parents[
+IfStatement-165-311
+]
+left: BlockStatement-275-311
+right: BlockStatement-275-311
+Dummy-IfEndBlock-18 :
+parents[
+Dummy-EndBlockNode-20
+Dummy-EndBlockNode-23
+]
+left: Dummy-IfEndBlock-13
+right: null
+BlockStatement-237-269 :
+parents[
+IfStatement-222-311
+]
+left: ExpressionStatement-244-266
+right: null
+Dummy-EndBlockNode-20 :
+parents[
+ExpressionStatement-244-266
+]
+left: Dummy-IfEndBlock-18
+right: null
+ExpressionStatement-244-266 :
+parents[
+BlockStatement-237-269
+]
+left: Dummy-EndBlockNode-20
+right: null
+BlockStatement-275-311 :
+parents[
+IfStatement-222-311
+]
+left: ExpressionStatement-282-308
+right: null
+Dummy-EndBlockNode-23 :
+parents[
+ExpressionStatement-282-308
+]
+left: Dummy-IfEndBlock-18
+right: null
+ExpressionStatement-282-308 :
+parents[
+BlockStatement-275-311
+]
+left: Dummy-EndBlockNode-23
+right: null
+------------------------------------
+
+__*global_class - changeImage
+---------
+FunctionDeclaration-315-533 :
+parents[
+]
+left: null
+right: null
+BlockStatement-338-533 :
+parents[
+]
+left: VariableDeclaration-345-392
+right: null
+Dummy-EndBlockNode-27 :
+parents[
+Dummy-IfEndBlock-30
+]
+left: null
+right: null
+VariableDeclaration-345-392 :
+parents[
+BlockStatement-338-533
+]
+left: IfStatement-398-530
+right: null
+IfStatement-398-530 :
+parents[
+VariableDeclaration-345-392
+]
+left: BlockStatement-483-530
+right: BlockStatement-483-530
+Dummy-IfEndBlock-30 :
+parents[
+Dummy-EndBlockNode-32
+Dummy-EndBlockNode-35
+]
+left: Dummy-EndBlockNode-27
+right: null
+BlockStatement-429-477 :
+parents[
+IfStatement-398-530
+]
+left: ExpressionStatement-440-470
+right: null
+Dummy-EndBlockNode-32 :
+parents[
+ExpressionStatement-440-470
+]
+left: Dummy-IfEndBlock-30
+right: null
+ExpressionStatement-440-470 :
+parents[
+BlockStatement-429-477
+]
+left: Dummy-EndBlockNode-32
+right: null
+BlockStatement-483-530 :
+parents[
+IfStatement-398-530
+]
+left: ExpressionStatement-494-523
+right: null
+Dummy-EndBlockNode-35 :
+parents[
+ExpressionStatement-494-523
+]
+left: Dummy-IfEndBlock-30
+right: null
+ExpressionStatement-494-523 :
+parents[
+BlockStatement-483-530
+]
+left: Dummy-EndBlockNode-35
+right: null
+------------------------------------
+
