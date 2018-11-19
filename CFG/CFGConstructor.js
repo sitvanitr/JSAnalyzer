@@ -1,4 +1,7 @@
-ASTVisitor = require('./ASTVisitor');
+var esprima = require("D:/dev/static/node_modules/esprima/dist/esprima");
+ASTVisitor = require('../AST/ASTVisitor');
+
+var PrintCFG = require("./PrintCFG");
 ///////////////////////////////////////////////////////////
 // cfg structure:
 // key of node (in function) is node.type-node_start-node-end
@@ -35,6 +38,7 @@ class CFGNode{
         this.right = null;
         this.parser_left = null;  // for for in, for of
         this.parser_out = null;   // for for in, for of
+        
     }
 };
 
@@ -65,22 +69,46 @@ class CFGNode{
         this.cfg_nodes = {};
         this.cfg_nodes[GLOBAL_CLASS] = {};
         this.cfg_nodes[GLOBAL_CLASS][this.current_function] = {};
+        this.printer = new PrintCFG();
         this.initMethodStructures(this.current_class, this.current_function);
+        
+    }
+
+
+    initPerMethodStructuresForSwitch(){
+        this.switch_head_stack = {};  // The last is the stack is the switch statement we are currently in
+        this.default_case = {}; // default_case[class][function][switch_head_key] is the key of the default node
+        this.last_case = {};
+        this.num_cases = {};
+        this.current_case = {};  // sequential number of current case in the current switch
+        this.switch_var_stack = {};
+        this.current_case_test = {};
+        // this.switch_cases = {};
     }
 
     initPerMethodStructures(){ // for DFS on the ast
-        this.node_stack = {};
-        
+        this.node_stack = {};       
         this.loop_stack = {};  // for continue
         // this.switch_stack = {};
         this.label_to_node_str = {};  // for break <label>; dictionary of labeled blocks.
         this.label_to_end_block = {};
         this.loop_switch_end_stack = {};  // for break;
-        this.switch_head_stack = {};  // The last is the stack is the switch statement we are currently in
-        this.default_case = {}; // default_case[class][function][switch_head_key] is the key of the default node
-        this.last_case = {};
+        this.initPerMethodStructuresForSwitch();
+        
         this.try_stack = {};
         this.catch_clauses = {};
+        
+    }
+
+    initClassStructuresForSwitch(class_name){
+        this.switch_head_stack[class_name] = {};
+        this.num_cases[class_name] = {};
+        this.current_case[class_name] = {};  // sequential number of current case in the current switch   
+        this.switch_var_stack[class_name] = {};
+        this.default_case[class_name] = {};
+        this.last_case[class_name] = {};
+        this.current_case_test[class_name]  = {};
+        // this.switch_cases[class_name] = {};
     }
 
     initClassStructures(class_name){
@@ -90,9 +118,7 @@ class CFGNode{
         this.label_to_node_str[class_name] = {};
         this.label_to_end_block[class_name] = {};
         this.loop_switch_end_stack[class_name] = {};
-        this.switch_head_stack[class_name] = {};
-        this.default_case[class_name] = {};
-        this.last_case[class_name] = {}; 
+        this.initClassStructuresForSwitch(class_name);
         this.try_stack[class_name] = {};
         this.catch_clauses[class_name] = {};
     }
@@ -103,15 +129,34 @@ class CFGNode{
     {
         this.node_stack[class_name][function_name] = [];      
         this.loop_stack[class_name][function_name] = []; // each entry is a stack of the node_str of the head of the inner loop.
-        // this.switch_stack[class_name][function_name] = [];
+        
         this.label_to_node_str[class_name][function_name] = {};
         this.label_to_end_block[class_name][function_name] = {};
         this.loop_switch_end_stack[class_name][function_name]  = [];
+        this.initMethodStructureForSwitch(class_name, function_name);
+        this.try_stack[class_name][function_name] = [];
+        this.catch_clauses[class_name][function_name] = {};  // key is the try statement
+    }
+
+    initMethodStructureForSwitch(class_name, function_name){
         this.switch_head_stack[class_name][function_name] = [];
+        this.num_cases[class_name][function_name] = [];
+        this.current_case[class_name][function_name] = [];  // sequential number of current case in the current switch       
+        this.switch_var_stack[class_name][function_name] = [];
         this.default_case[class_name][function_name] = {};
         this.last_case[class_name][function_name] = []; 
-        this.try_stack[class_num][function_num] = [];
-        this.catch_clauses[class_name][function_num] = {};  // key is the try statement
+        this.current_case_test[class_name][function_name] = new esprima.Nodes.Literal(true, "true");  // init case test to true;
+        // this.switch_cases[class_name][function_name] = {};
+    }
+
+    deleteClassStructuresForSwitch(class_name){
+        delete this.switch_head_stack[class_name];
+        delete this.num_cases[class_name];
+        delete this.current_case[class_name];
+        delete this.switch_var_stack[class_name];
+        delete this.default_case[class_name];
+        delete this.last_case[class_name];
+        delete this.current_case_test[class_name];
     }
 
     deleteClassStructures(class_name){
@@ -121,10 +166,19 @@ class CFGNode{
         delete this.label_to_node_str[class_name];
         delete this.label_to_end_block[class_name];
         delete this.loop_switch_end_stack[class_name];
-        delete this.switch_head_stack[class_name];
-        delete this.default_case[class_name];
-        delete this.last_case[class_name];
-        delete this.try_stack[class_num];
+        this.deleteClassStructuresForSwitch(class_name);
+        delete this.try_stack[class_name];
+        delete this.catch_clauses[class_name];
+    }
+
+    deleteMethodStructureForSwitch(class_name, function_name){
+        delete this.switch_head_stack[class_name][function_name];
+        delete this.num_cases[class_name][function_name];
+        delete this.current_case[class_name][function_name];
+        delete this.switch_var_stack[class_name][function_name];
+        delete this.default_case[class_name][function_name];
+        delete this.last_case[class_name][function_name];
+        delete this.current_case_test[class_name][function_name];
     }
 
     deleteMethodStructures(class_name, function_name){
@@ -134,10 +188,9 @@ class CFGNode{
         delete this.label_to_node_str[class_name][function_name];
         delete this.label_to_end_block[class_name][function_name];
         delete this.loop_switch_end_stack[class_name][function_name];
-        delete this.switch_head_stack[class_name][function_name];
-        delete this.default_case[class_name][function_name];
-        delete this.last_case[class_name][function_name];
-        delete this.try_stack[class_num][function_name];
+        this.deleteMethodStructureForSwitch(class_name, function_name);
+        delete this.try_stack[class_name][function_name];
+        delete this.catch_clauses[class_name][function_name];
     }
 
     // Here node in CFGNode. node.parser_node is either null (if new node) or the node returned in parsing.
@@ -155,14 +208,32 @@ class CFGNode{
         return node_str;
     }
 
-    
+    shouldConnectPreviousNodeAsParent(node_str, parent_node){
+        var connect = !this.isIfNode(parent_node.parser_node) && 
+        !this.isJumpStatement(parent_node.parser_node) &&
+        !this.isDefaultCase(this.cfg_nodes[this.current_class][this.current_function][node_str].parser_node);
+        return connect;
+    }
+
+    // connect node_str as the left child of the previous node
+    connectPreviousNodeAsParent(node_str){
+        var stack_len = this.node_stack[this.current_class][this.current_function].length;
+        if (stack_len > 0){  // There is a previous node in the stack
+            var parent_str = this.node_stack[this.current_class][this.current_function][stack_len - 1];
+            var parent_node = this.cfg_nodes[this.current_class][this.current_function][parent_str]; 
+            if (parent_node && this.shouldConnectPreviousNodeAsParent(node_str, parent_node)){// for ifStatment we connect in visitIfStatement
+                console.log("adding parent ", parent_str);
+                this.cfg_nodes[this.current_class][this.current_function][node_str].parents.push(parent_str);
+                this.cfg_nodes[this.current_class][this.current_function][parent_str].left = node_str;
+            }
+        }
+    }
 
     // Add a node to the cfg of this.current_function_stack if it is new. If the previous node is not a branching node, add the previous visited node as its parent,
     // and add this node as the parent's left child.
     // Argument: node - a node generated by the parser.
     addToCFG(node){
-        var node_str = this.nodeStr(node);
-        
+        var node_str = this.nodeStr(node);       
         console.log("addToCFG ", node_str);
         if (!(node_str in this.cfg_nodes[this.current_class][this.current_function])){  // add new node           
             console.log("adding new node to cfg");
@@ -171,21 +242,7 @@ class CFGNode{
             this.cfg_nodes[this.current_class][this.current_function][node_str] = cfg_node;
             // this.str_to_node[node_str] = this.cfg_nodes[this.current_function_stack][node_str];
         }
-        var stack_len = this.node_stack[this.current_class][this.current_function].length;
-        if (stack_len > 0){  // There is a previous node in the stack
-            var parent_str = this.node_stack[this.current_class][this.current_function][stack_len - 1];
-            var parent_node = this.cfg_nodes[this.current_class][this.current_function][parent_str]; 
-            if (!parent_node)
-                console.log("NULL PARENT");  
-            if (!this.isJumpStatement(parent_node.parser_node) ){      
-                console.log("adding parent ", parent_str);
-                this.cfg_nodes[this.current_class][this.current_function][node_str].parents.push(parent_str);
-            }
-            if (parent_node && !this.isIfNode(parent_node.parser_node) && 
-                !this.isJumpStatement(parent_node.parser_node) )// for ifStatment we connect in visitIfStatement
-                this.cfg_nodes[this.current_class][this.current_function][parent_str].left = node_str;
-        }
-        
+        this.connectPreviousNodeAsParent(node_str);       
         return node_str;
     }
 
@@ -197,34 +254,6 @@ class CFGNode{
         this.cfg_nodes[this.current_class][this.current_function][key] = end_block;
         return key;
     }
-
-    printCFG(){
-        console.log("CFG");
-        console.log("====");
-
-        for(var current_class in this.cfg_nodes){
-            for(var current_function in this.cfg_nodes[current_class]){
-                console.log(current_class, "-", current_function);
-                console.log("---------");
-                for (var key in this.cfg_nodes[current_class][current_function]){
-                    
-                    console.log(key, ":");
-                    // console.log( this.cfg_nodes[this.current_function_stack][key]);
-                    console.log("parents[");
-                    var num_parents = this.cfg_nodes[current_class][current_function][key].parents.length;
-                    for (var i=0; i< num_parents; i++)
-                        console.log(this.cfg_nodes[current_class][current_function][key].parents[i]);
-                        // console.log(this.cfg_nodes[this.current_function_stack][key].parents);
-                        console.log("]");
-                    console.log("left:", this.cfg_nodes[current_class][current_function][key].left);
-                    console.log("right:", this.cfg_nodes[current_class][current_function][key].right);
-                }
-                console.log("------------------------------------\n");
-            }
-        }
-    }
-
-    
 
     // connect the last visited node to the end of the embedding block/loop/if.
     // If the leaf is a jump node, the parameter should be the node to jump to.
@@ -280,8 +309,7 @@ class CFGNode{
         visitIteratedForLoop(node);
     }
 
-    processFunctionDeclaration(node, dummy_function){
-       
+    processFunctionDeclaration(node, dummy_function){      
         var function_name = null;
         if (!dummy_function)
             function_name = node.id.name;
@@ -302,8 +330,7 @@ class CFGNode{
         this.deleteMethodStructures(this.current_class, this.current_function); // going out of this method
         this.current_function_stack[this.current_class].pop();     
         var stack_len = this.current_function_stack[this.current_class].length;
-        this.current_function = this.current_function_stack[this.current_class][stack_len-1];
-        
+        this.current_function = this.current_function_stack[this.current_class][stack_len-1];       
     }
 
     // To get the parameters of a method - this.cfg_nodes[method_id].parser_node.parameters
@@ -384,6 +411,7 @@ class CFGNode{
         this.cfg_nodes[this.current_class][this.current_function][node_str].left = loop_head; // add the inner loop head as the continue node child;
         this.cfg_nodes[this.current_class][this.current_function][loop_head].parents.push(node_str);
         this.popNonBranchingAncestors() // should pop ancestors until if orloop
+        this.node_stack[this.current_class][this.current_function].push(node_str); // in order not to connect as parent
     }
 
     // break; break out of switch or loop
@@ -401,7 +429,8 @@ class CFGNode{
         }
         this.cfg_nodes[this.current_class][this.current_function][node_str].left = after_break; // add the inner loop head as the continue node child;
         this.cfg_nodes[this.current_class][this.current_function][after_break].parents.push(node_str);
-        this.popNonBranchingAncestors() // should pop ancestors until if/loop
+        // this.popNonBranchingAncestors() // should pop ancestors until if/loop
+        this.node_stack[this.current_class][this.current_function].push(node_str); // in order not to connect as parent
     }
 
     visitBlockStatement(node){
@@ -458,44 +487,109 @@ class CFGNode{
         this.processWhileLoop(node);
     }
 
-    visitSwitchStatement(node){
-        this.addToCFG(node);  
-        var node_str = this.nodeStr(node);
+    deleteCurrentSwitchData()
+    {
+        this.switch_head_stack[this.current_class][this.current_function].pop();   // pop the switchstatement node
+        this.loop_switch_end_stack[this.current_class][this.current_function].pop(); // pop the switch end from the stack for break
+        delete this.default_case[this.current_class][this.current_function][node_str]; // delete the default node of this switch  
+
+    }
+
+    initSwitchData(node, node_str){   
         this.switch_head_stack[this.current_class][this.current_function].push(node_str);
+        this.num_cases[this.current_class][this.current_function].push(node.cases.length);
+        this.current_case[this.current_class][this.current_function].push(0);
+        this.switch_var_stack[this.current_class][this.current_function].push(node.discriminant);
+    }
+
+    deleteSwitchData(){
+        this.switch_head_stack[this.current_class][this.current_function].pop();
+        this.num_cases[this.current_class][this.current_function].pop();
+        this.current_case[this.current_class][this.current_function].pop();
+        this.switch_var_stack[this.current_class][this.current_function].pop();
+        this.loop_switch_end_stack[this.current_class][this.current_function].pop();
+    }
+
+    // put default case as last in the array of cases
+    // not effective because in the case of default in the middle, when the last case does not have a break we don't 
+    // want it to continue to the default.
+    // sortSwitchCases(node, node_str){
+    //     this.switch_cases[this.current_class][this.current_function][node_str] = [];
+    //     var ind = 0;
+    //     var default_case = null;
+    //     for (var i=0; i<node.cases.length; i++){
+    //         if (this.isDefaultCase(node.cases[i]))
+    //             default_case = node.cases[i];
+    //         else{
+    //             this.switch_cases[this.current_class][this.current_function][node_str][ind] = node.cases[i];
+    //             ind++;
+    //         }
+    //     }
+    //     this.switch_cases[this.current_class][this.current_function][node_str][ind] = default_case;
+    // }
+
+    visitSwitchStatement(node){   
+        var node_str = this.addToCFG(node);   
+        this.initSwitchData(node, node_str);  
         this.node_stack[this.current_class][this.current_function].push(node_str);  
         var after_switch_node_key = this.createEndBlockNode("SwitchEndBlock", node);
         this.loop_switch_end_stack[this.current_class][this.current_function].push(after_switch_node_key);
+        
+
         for (var c in node.cases){
+            var switch_depth = this.current_case[this.current_class][this.current_function].length;
+            this.current_case[this.current_class][this.current_function][switch_depth-1]++;
             this.visit(node.cases[c]);
         }
+        this.connectPreviousNodeAsParent(after_switch_node_key);  // connect switch end as child of last statement in the switch
         this.popUntilNode(node_str);  
-        this.switch_head_stack[this.current_class][this.current_function].pop();   // pop the switchstatement node
+        this.deleteSwitchData();
         this.node_stack[this.current_class][this.current_function].pop();  // pop the switchstatement node
-        this.loop_switch_end_stack[class_name][function_name].pop(); // pop the switch end from the stack for break
-        delete this.default_case[class_name][function_name][node_str]; // delete the default node of this switch
-        
         this.node_stack[this.current_class][this.current_function].push(after_switch_node_key);   // push the dummy end block 
     }
 
-    visitSwitchCase(node){
-        this.addToCFG(node); 
-        
-        var node_str = this.nodeStr(node);
+    parentIsSwitchCase(){
+        var node_stack_len = this.node_stack[this.current_class][this.current_function].length;
+        var parent_key = this.node_stack[this.current_class][this.current_function][node_stack_len-1];
+        var switch_stack = this.cfg_nodes[this.current_class][this.current_function];
+        var parent = switch_stack[parent_key];
+        console.log("parent type" + parent.type);
+        return this.cfg_nodes[this.current_class][this.current_function][parent_key].type == "SwitchCase";
+    }
+
+    addNewSwitchCase(node){
+        var node_str = this.addToCFG(node); 
         this.node_stack[this.current_class][this.current_function].push(node_str);
+        this.cfg_nodes[this.current_class][this.current_function][node_str].test = this.current_case_test[this.current_class][this.current_function];   
+            
         var default_case = this.isDefaultCase(node);
-        if (default_case){
-            var stack_len = this.switch_head_stack[this.current_class][this.current_function].length;
-            var switch_head = this.switch_head_stack[this.current_class][this.current_function][stack_len - 1];
+        var stack_len = this.switch_head_stack[this.current_class][this.current_function].length;
+        var switch_head = this.switch_head_stack[this.current_class][this.current_function][stack_len - 1];
+        if (default_case){       
             this.default_case[this.current_class][this.current_function][switch_head] = node_str;           
         }
-        else{
-        // connect the node as "else" of the before last case
+        var switch_depth = this.num_cases[this.current_class][this.current_function].length;
+
+        var at_last_case = (this.current_case[this.current_class][this.current_function][switch_depth-1] == 
+        this.num_cases[this.current_class][this.current_function][switch_depth-1]);
+        
+        if (!default_case || (default_case && at_last_case)){
+        // connect the node as "else" of the previous case
             var last_case_len = this.last_case[this.current_class][this.current_function].length;
             if (last_case_len > 0){
                 // pop the last case of the current function in order to update it later to node_str.
                 var last_case = this.last_case[this.current_class][this.current_function].pop();
                 this.cfg_nodes[this.current_class][this.current_function][node_str].parents.push(last_case);
                 this.cfg_nodes[this.current_class][this.current_function][last_case].right = node_str;
+            }
+        }
+        if (at_last_case){
+                if (!default_case){ // last case is not default
+                    if (switch_head in this.default_case[this.current_class][this.current_function]){ // default exists
+                        var default_case = this.default_case[this.current_class][this.current_function][switch_head];
+                        this.cfg_nodes[this.current_class][this.current_function][default_case].parents.push(node_str);
+                        this.cfg_nodes[this.current_class][this.current_function][node_str].right = default_case;
+                    }
             }
         }
         // var after_case_node_key = this.createEndBlockNode("CaseEndBlock");
@@ -507,9 +601,33 @@ class CFGNode{
         // this.node_stack[this.current_class][this.current_function].pop(); // pop the case node
         // this.node_stack[this.current_class][this.current_function].push(after_case_node_key);   // push the dummy end block 
         // update last case stacks         
-        this.node_stack[this.current_class][this.current_function].pop();  // pop the case node
+        // this.node_stack[this.current_class][this.current_function].pop();  // pop the case node
         if (!default_case)
-            this.last_case[this.current_class][this.current_function].push(node_str);  
+            this.last_case[this.current_class][this.current_function].push(node_str); 
+        else{  // pop the default from the stack as it should not be connected as parent
+            this.popUntilNode(node_str);
+            this.node_stack[this.current_class][this.current_function].pop();
+        }
+    }
+
+    // The structure of the cfg of switch:
+    // node for the switch statement.
+    // one switch case node for each sequence of consecutive case tests case 1: case 2:. The test of the node is or of the consecutive tests
+    // at most one default case as the last case node.
+    // dummy  SwitchEndBlock node.
+    visitSwitchCase(node){
+        if (!this.parentIsSwitchCase())  // not the case of the form case 1:
+                                         //                          case 2:
+            this.current_case_test[this.current_class][this.current_function] = new esprima.Nodes.Literal(true, "true");  // init case test to true
+        
+        var switch_depth = this.switch_var_stack[this.current_class][this.current_function].length;
+        var this_test = new esprima.Nodes.BinaryExpression('==', this.switch_var_stack[this.current_class][this.current_function][switch_depth-1], node.test);       
+        this.current_case_test[this.current_class][this.current_function] = new esprima.Nodes.BinaryExpression('||', 
+                                               this.current_case_test[this.current_class][this.current_function], this_test);
+        this.printer.printBinaryExpression(this.current_case_test[this.current_class][this.current_function]);
+        if (node.consequent.length >0){ 
+           this.addNewSwitchCase(node); 
+        } 
     }
 
     // interface ClassDeclaration {

@@ -99,7 +99,7 @@ module.exports = class ASTVisitor{
         var init_node = new OurASTNode(node.init, this.current_node);
         var if_node =  createIfStatementForLoop(node);
         if (node.update) { this.visit(node.update, st, "Expression"); }
-      this.visit(node.body, st, "Statement");
+      this.visit(node.body);
     };
 
     visitForInStatement_cb(node) {
@@ -226,7 +226,9 @@ module.exports = class ASTVisitor{
     }
 
     isDefaultCase(node){
-        return node.test == null;
+        if (!node)
+            return false;
+        return node.type =="SwitchCase" && node.test == null;
     }
 
 };

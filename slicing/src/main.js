@@ -15,10 +15,6 @@
 // construct real ast.
 // find function call
 
-
-
-const PACKAGE_DIR = "D:/dev/static/js-parsing/node_modules";
-
 var esprima = require("D:/dev/static/js-parsing/node_modules/esprima");
 const utils = require("./utils");
 
@@ -41,22 +37,25 @@ var parser_config = {range: true};
 
 //var input_file = "D:\\dev\\static\\js-parsing\\nodejs-example.js";
 // var input_file = "D:\\dev\\static\\antlr\\javascript\\js-slicing\\examples\\web-components-examples-master\\popup-info-box-web-component\\main.js";
-var input_file = "D:\\dev\\static\\js-examples\\if.js";
+// var input_file = "D:\\dev\\static\\js-examples\\if.js";
 // var input_file = "D:\\dev\\static\\js-examples\\small-if.js";
 // var input_file = "D:\\dev\\static\\js-examples\\switch-end-default.js";
+// var input_file = "D:\\dev\\static\\js-examples\\switch-common-block.js";
+var input_file = "D:\\dev\\static\\js-examples\\switch-middle-default.js";
 
-
-async function readToString(){
+var file_str;
+function readToString(){
     console.log("before read file");
-    fs.readFile(input_file, "utf8", async function (err, data) {
-        if (err) throw err;
+    file_str = fs.readFileSync(input_file, "utf8");
+    // fs.readFile(input_file, "utf8", async function (err, data) {
+//         if (err) throw err;
 
-        await utils.sleep(2000);
-        file_str = data;
-//        console.log(file_str);
-//        await sleep(2000);
-        console.log("after read file");
-    });
+//         await utils.sleep(2000);
+//         file_str = data;
+// //        console.log(file_str);
+// //        await sleep(2000);
+//         console.log("after read file");
+//     });
 }
 
 //async function parseString(file_str)
@@ -106,20 +105,22 @@ async function parseString()
 return ast;
 }
 
-var CFGConstructor = require("./CFGConstructor");
+var CFGConstructor = require("../../CFG/CFGConstructor");
+var PrintCFG = require("../../CFG/PrintCFG");
 
-var file_str;
+
 async function main()
 {
 // the argument is the name of the function we are looking for
     var args = process.argv.slice(2);
     console.log(args);
-    await readToString();
+    readToString();
     var ast = await parseString();
 
     var visitor = new CFGConstructor();
     visitor.visit(ast);
-    visitor.printCFG();
+    var printer = new PrintCFG();
+    printer.printCFG(visitor.cfg_nodes);
 }
 
 main();
