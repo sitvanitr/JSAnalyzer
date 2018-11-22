@@ -16,7 +16,20 @@ module.exports = class ASTVisitor{
         return str;
     }
 
+    visitDefaultNode(node){
+    }
 
+    visitDefaultExpression(node){
+
+    }
+
+    visitExpressionStatement(node){
+
+    }
+
+    visitVariableDeclaration(node){
+        
+    }
 
     visitFunctionExpression(node){
         visit(node.body);
@@ -24,6 +37,11 @@ module.exports = class ASTVisitor{
 
     visitArrowFunctionExpression(node){
         visit(node.body);
+    }
+
+    visitAssignmentExpression(node){
+        this.visitExpression(node.left);
+        this.visitExpression(node.right);
     }
 
     visitClassExpression(node){
@@ -74,7 +92,7 @@ module.exports = class ASTVisitor{
 
     }
 
-    visitLabeledStatement(node){
+    visitLabelledStatement(node){
         this.visitDefaultNode(node);
     }
 
@@ -108,8 +126,6 @@ module.exports = class ASTVisitor{
       this.visit(node.body, st, "Statement");
     };
 
-
-
     visitMethodDefinition(node) {
       if (node.computed) { visit(node.key); }
       this.visit(node.value);
@@ -120,56 +136,65 @@ module.exports = class ASTVisitor{
         this.visit(node.body);
     }
 
+    visitEmptyStatement(node){
+        this.visitDefaultNode(node);
+    }
 
+    visitCallExpression(node){
+        
+    }
 
     visit(node){
-        switch (node.type){
-            case "FunctionExpression":
-                this.visitFunctionExpression(node);
-                break;
-            case "ArrowFunctionExpression":
-                this.visitArrowFunctionExpression(node);
-                break;
-            case "Program":
-            case "BlockStatement":
-                this.visitBlockStatement(node);
-                break;
-            case "IfStatement":
-                this.visitIfStatement(node);
-                break;
-            case "ClassExpression":
-                this.visitClassExpression(node);
-                break;
+        switch (node.type){           
             case "BreakStatement":
                 this.visitBreakStatement(node);
-                break;
-            case "ContinueStatement":
-                this.visitContinueStatement(node);
-                break;
-            case "DebuggerStatement":
-                this.visitDebuggerStatement(node);
-                break;
-            case "DoWhileStatement":
-                this.visitDoWhileStatement(node);
-                break;
-            case "EmptyStatement":
-                this.visitEmptyStatement(node);
-                this.visitEmptyStatement(node);
-                break;
-            case "ClassDeclaration":
-                this.visitClassDeclaration(node);
-                break;
-            case "ClassExpression":
-                this.visitClassExpression(node);
                 break;
             case "ClassBody":
                 this.visitClassBody(node);
                 break;
-            case "MethodDefinition":
-                this.visitMethodDefinition(node);
+            case "ClassDeclaration":
+                this.visitClassDeclaration(node);
+                break;
+                       
+            case "ContinueStatement":
+                this.visitContinueStatement(node);
+                break;
+            case "DoWhileStatement":
+                this.visitDoWhileStatement(node);
+                break;               
+            case "EmptyStatement":
+                this.visitEmptyStatement(node);
+                break;
+            case "ExpressionStatement":
+                this.visitExpressionStatement(node);
+                break;
+            case "ForStatement":
+                this.visitForStatement(node);
+                break;
+            case "ForInStatement":
+                this.visitForInStatement(node);
+                break;
+            case "ForOfStatement":
+                this.visitForOfStatement(node);
                 break;
             case "FunctionDeclaration":
                 this.visitFunctionDeclaration(node);
+                break;
+            case "IfStatement":
+                this.visitIfStatement(node);
+                break;
+            case "LabelledStatement":
+                this.visitLabelledStatement(node);
+                break;
+            case "MethodDefinition":
+                this.visitMethodDefinition(node);
+                break;
+            case "Program": 
+            case "BlockStatement":
+                this.visitBlockStatement(node);
+                break;
+            case "ReturnStatement":
+                this.visitReturnStatement(node);
                 break;
             case "SwitchStatement":
                 this.visitSwitchStatement(node);
@@ -177,6 +202,21 @@ module.exports = class ASTVisitor{
             case "SwitchCase":
                 this.visitSwitchCase(node);
                 break;
+            
+            case "WhileStatement":
+                this.visitWhileStatement(node);
+                break;
+            case "TryStatement":
+                this.visitTryStatement(node);
+                break;
+            case "CatchClause": 
+                this.visitCatchClause(node);
+                break;   
+            case "VariableDeclaration":
+                this.visitVariableDeclaration(node);
+                break;
+            case "Expression":
+                this.visitExpression(node);
             default:
                 this.visitDefaultNode(node);
             
@@ -190,15 +230,22 @@ module.exports = class ASTVisitor{
             case "ArrowFunctionExpression":
                 this.visitFunctionExpression(node);
                 break;
-            
+            case "ClassExpression":
+                this.visitClassExpression(node);
+                break;
+            case "AssignmentExpression":
+                this.visitAssignmentExpression(node);
+                break; 
+            case "CallExpression":
+                this.visitCallExpression(node);
+                break;
             default:
                 console.log("default", node);
                 this.visitDefaultExpression(node);
         }
     }
 
-    visitDefaultNode(node){
-    }
+    
 
     isIfNode(node){
         if (!node)
@@ -207,10 +254,10 @@ module.exports = class ASTVisitor{
     }
 
     isBranchingNode(node)
-    {
-        console.log("isBranching ", node.type);
+    {   
         if (!node)
             return false;
+        console.log("isBranching ", node.type);
         return (node.type == "IfStatement" ||
             node.type == "WhileStatement" ||
             node.type == "DoWhileStatement" || node.type == "ForStatement" ||

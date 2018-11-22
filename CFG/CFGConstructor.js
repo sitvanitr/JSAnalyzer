@@ -23,6 +23,9 @@ var PrintCFG = require("./PrintCFG");
 // If FunctionExpression/ClassExpression is named, then the name is local to the class/function body.
 // A catch clause is treated as a new dummy function.
 
+// todo:
+// - Currently a return node has no children. Add dummy function end node and connect it as the return left child.
+
 
 class CFGNode{
     constructor(node, id, type){
@@ -54,28 +57,29 @@ class CFGNode{
         super();   
         
         this.current_node = 0;
-        this.current_class_stack = [];
-        this.current_class_stack.push(GLOBAL_CLASS);
-        this.current_class = GLOBAL_CLASS;
+        // this.current_class_stack = [];
+        // this.current_class_stack.push(GLOBAL_CLASS);
+        // this.current_class = GLOBAL_CLASS;
         this.current_class_stack_id = 0;
-        this.current_function_stack = {}; 
-        this.current_function_stack[GLOBAL_CLASS] = [];  
-        this.current_function_stack[GLOBAL_CLASS] .push(GLOBAL_METHOD);
-        this.current_function = GLOBAL_METHOD;
+        // this.current_function_stack = {}; 
+        // this.current_function_stack[GLOBAL_CLASS] = [];  
+        // this.current_function_stack[GLOBAL_CLASS] .push(GLOBAL_METHOD);
+        // this.current_function = GLOBAL_METHOD;
         // name of FunctionExpression we are in is the last in the stack.
         this.current_function_stack_id = 0;  // Id for dummy function names.
         this.initPerMethodStructures();
         this.initClassStructures(GLOBAL_CLASS);
-        this.cfg_nodes = {};
-        this.cfg_nodes[GLOBAL_CLASS] = {};
-        this.cfg_nodes[GLOBAL_CLASS][this.current_function] = {};
+        // this.cfg_nodes = {};
+        // this.cfg_nodes[GLOBAL_CLASS] = {};
+        // this.cfg_nodes[GLOBAL_CLASS][this.current_function] = {};
         this.printer = new PrintCFG();
-        this.initMethodStructures(this.current_class, this.current_function);
+        this.initMethodStructures(this.current_class, GLOBAL_METHOD);
         
     }
 
 
     initPerMethodStructuresForSwitch(){
+        
         this.switch_head_stack = {};  // The last is the stack is the switch statement we are currently in
         this.default_case = {}; // default_case[class][function][switch_head_key] is the key of the default node
         this.last_case = {};
@@ -87,20 +91,23 @@ class CFGNode{
     }
 
     initPerMethodStructures(){ // for DFS on the ast
-        this.node_stack = {};       
+        this.current_class_stack = [];
+        this.current_function_stack = {}; 
+        this.cfg_nodes = {}; 
+        this.node_stack = {};     
+               
         this.loop_stack = {};  // for continue
         // this.switch_stack = {};
         this.label_to_node_str = {};  // for break <label>; dictionary of labeled blocks.
         this.label_to_end_block = {};
         this.loop_switch_end_stack = {};  // for break;
-        this.initPerMethodStructuresForSwitch();
-        
+        this.initPerMethodStructuresForSwitch();       
         this.try_stack = {};
-        this.catch_clauses = {};
-        
+        this.catch_clauses = {};    
+        this.function_end = {};  
     }
 
-    initClassStructuresForSwitch(class_name){
+    initClassStructuresForSwitch(class_name){      
         this.switch_head_stack[class_name] = {};
         this.num_cases[class_name] = {};
         this.current_case[class_name] = {};  // sequential number of current case in the current switch   
@@ -108,10 +115,14 @@ class CFGNode{
         this.default_case[class_name] = {};
         this.last_case[class_name] = {};
         this.current_case_test[class_name]  = {};
-        // this.switch_cases[class_name] = {};
+        
     }
 
     initClassStructures(class_name){
+        this.current_class_stack.push(class_name);
+        this.current_class = class_name;
+        this.current_function_stack[class_name] = [];  
+        this.cfg_nodes[class_name] = {};       
         this.node_stack[class_name] = {};       
         this.loop_stack[class_name] = {};
         // this.switch_stack[class_name] = {};
@@ -121,12 +132,17 @@ class CFGNode{
         this.initClassStructuresForSwitch(class_name);
         this.try_stack[class_name] = {};
         this.catch_clauses[class_name] = {};
+        this.function_end[class_name] = {};
+        
     }
 
     // These structures are for storing entries for loops and blocks in a function declaration.
     // The current method declaration has a stack of stacks.
     initMethodStructures(class_name, function_name)
     {
+        this.current_function_stack[class_name].push(function_name);
+        this.current_function = function_name;
+        this.cfg_nodes[class_name][function_name] = {};
         this.node_stack[class_name][function_name] = [];      
         this.loop_stack[class_name][function_name] = []; // each entry is a stack of the node_str of the head of the inner loop.
         
@@ -136,6 +152,7 @@ class CFGNode{
         this.initMethodStructureForSwitch(class_name, function_name);
         this.try_stack[class_name][function_name] = [];
         this.catch_clauses[class_name][function_name] = {};  // key is the try statement
+        this.function_end[class_name][function_name] = undefined;
     }
 
     initMethodStructureForSwitch(class_name, function_name){
@@ -160,6 +177,15 @@ class CFGNode{
     }
 
     deleteClassStructures(class_name){
+        this.current_class_stack.pop();
+        var class_depth = this.current_class_stack.length;
+        this.current_class = this.current_class_stack[class_depth -1];
+        var function_depth = this.current_function_stack[this.current_class].length;
+        if (function_depth>0)
+            this.current_function = this.current_function_stack[this.current_class][function_depth-1];
+        else
+            this.current_function = undefined;
+        delete this.current_function_stack[class_name];         
         delete this.node_stack[class_name];  
         delete this.loop_stack[class_name]; // each entry is a stack of the node_str of the head of the inner loop.
         // this.switch_stack[class_name][function_name] = [];
@@ -169,6 +195,7 @@ class CFGNode{
         this.deleteClassStructuresForSwitch(class_name);
         delete this.try_stack[class_name];
         delete this.catch_clauses[class_name];
+        delete this.function_end[class_name];
     }
 
     deleteMethodStructureForSwitch(class_name, function_name){
@@ -182,6 +209,9 @@ class CFGNode{
     }
 
     deleteMethodStructures(class_name, function_name){
+        this.current_function_stack[class_name].pop();
+        var function_depth = this.current_function_stack[class_name].length;
+        this.current_function = this.current_function_stack[class_name][function_depth -1];
         delete this.node_stack[class_name][function_name];  
         delete this.loop_stack[class_name][function_name]; // each entry is a stack of the node_str of the head of the inner loop.
         // this.switch_stack[class_name][function_name] = [];
@@ -191,6 +221,7 @@ class CFGNode{
         this.deleteMethodStructureForSwitch(class_name, function_name);
         delete this.try_stack[class_name][function_name];
         delete this.catch_clauses[class_name][function_name];
+        delete this.function_end[class_name][function_name];
     }
 
     // Here node in CFGNode. node.parser_node is either null (if new node) or the node returned in parsing.
@@ -207,6 +238,21 @@ class CFGNode{
         var node_str = "Dummy" + "-" + node.type + "-" + this.nodeStr(block_head);
         return node_str;
     }
+
+
+    // connect the last visited node to the end of the embedding block/loop/if.
+    // If the leaf is a jump node, the parameter should be the node to jump to.
+    // For example - connect the leaf of the tne branch to the dummy end node of the if statement.
+    // connectPreviousNodeAsParent(after_if_node_key)
+    // {
+    //     var stack_len = this.node_stack[this.current_class][this.current_function].length;  
+    //     var leaf_key = this.node_stack[this.current_class][this.current_function][stack_len - 1]; // the leaf of the (then/if) branch or last visited node.       
+    //     var leaf_node = this.cfg_nodes[this.current_class][this.current_function][leaf_key];
+    //     if (!this.isBranchingNode(leaf_node) && !this.isJumpStatement(leaf_node)){    
+    //         this.cfg_nodes[this.current_class][this.current_function][leaf_key].left = after_if_node_key;
+    //         this.cfg_nodes[this.current_class][this.current_function][after_if_node_key].parents.push(leaf_key);
+    //     }
+    // }
 
     shouldConnectPreviousNodeAsParent(node_str, parent_node){
         var connect = !this.isIfNode(parent_node.parser_node) && 
@@ -233,10 +279,10 @@ class CFGNode{
     // and add this node as the parent's left child.
     // Argument: node - a node generated by the parser.
     addToCFG(node){
-        var node_str = this.nodeStr(node);       
-        console.log("addToCFG ", node_str);
+        var node_str = this.nodeStr(node);  
+        console.log("addToCFG " , node.loc.start, node.loc.end);
         if (!(node_str in this.cfg_nodes[this.current_class][this.current_function])){  // add new node           
-            console.log("adding new node to cfg");
+            console.log("adding new node to cfg" + node_str, node.loc);
             var cfg_node = new CFGNode(node, this.current_node, node.type);
             this.current_node++;
             this.cfg_nodes[this.current_class][this.current_function][node_str] = cfg_node;
@@ -255,87 +301,93 @@ class CFGNode{
         return key;
     }
 
-    // connect the last visited node to the end of the embedding block/loop/if.
-    // If the leaf is a jump node, the parameter should be the node to jump to.
-    // For example - connect the leaf of the tne branch to the dummy end node of the ip statement.
-    connectPathLeafToNode(after_if_node_key, connect_jump)
-    {
-        var stack_len = this.node_stack[this.current_class][this.current_function].length;  
-        var leaf_key = this.node_stack[this.current_class][this.current_function][stack_len - 1]; // the leaf of the (then/if) branch or last visited node.       
-        var leaf_node = this.cfg_nodes[this.current_class][this.current_function][leaf_key];
-        if (!this.isBranchingNode(leaf_node)){    
-            this.cfg_nodes[this.current_class][this.current_function][leaf_key].left = after_if_node_key;
-            this.cfg_nodes[this.current_class][this.current_function][after_if_node_key].parents.push(leaf_key);
-        }
-    }
+    
  
     visitForStatement(node){
-        if (this.init){
-            var init_for_key = this.addToCFG(node.init);
-            this.connectPathLeafToNode(init_for_key);
-            this.node_stack[this.current_class][this.current_function].push(init_for_key);  // connect the init node to the node before the for
+        if (node.init){
+            this.visit(node.init);
+            
         }
-        var for_key = this.addToCFG(node);
-        this.connectPathLeafToNode(for_key); // connect the for node as child of the init
-        cfg_nodes[this.current_class][this.current_function][for_key].test = node.test;
+        var node_str = this.addToCFG(node);       
+        
+        this.node_stack[this.current_class][this.current_function].push(node_str);
+        this.cfg_nodes[this.current_class][this.current_function][node_str].test = node.test;
         var end_loop_key = this.createEndBlockNode("EndLoopNode", node);
         this.loop_stack[this.current_class][this.current_function].push(node_str);  // push the loop head to the loop stack
         this.loop_switch_end_stack[this.current_class][this.current_function].push(end_loop_key);
         this.visit(node.body);
-        if (this.update){
-            var update_for_key = this.addToCFG(node.update);
-            this.connectPathLeafToNode(update_for_key, true);// connect only if leaf is not jump
-            this.node_stack[this.current_class][this.current_function].push(update_for_key);
+        if (node.update){
+            
+            this.visit(node.update);
         }
         this.afterLoop(end_loop_key);
     }
 
     visitIteratedForLoop(node){
         var for_key = this.addToCFG(node);
-        cfg_nodes[this.current_class][this.current_function][for_key].parser_left = node.left;
-        cfg_nodes[this.current_class][this.current_function][for_key].parser_right = node.right;
+        this.node_stack[this.current_class][this.current_function].push(for_key);
+        this.cfg_nodes[this.current_class][this.current_function][for_key].test = node.test;
+        this.cfg_nodes[this.current_class][this.current_function][for_key].parser_left = node.left;
+        this.cfg_nodes[this.current_class][this.current_function][for_key].parser_right = node.right;
         var end_loop_key = this.createEndBlockNode("EndLoopNode", node);
-        this.loop_stack[this.current_class][this.current_function].push(node_str);  // push the loop head to the loop stack
+        this.loop_stack[this.current_class][this.current_function].push(for_key);  // push the loop head to the loop stack
         this.loop_switch_end_stack[this.current_class][this.current_function].push(end_loop_key);
+        if (node.left)
+            this.visitExpression(node.left);
+        if (node.right)
+            this.visitExpression(node.right);
         this.visit(node.body);
         this.afterLoop(end_loop_key);
     }
 
     visitForInStatement(node){
-        visitIteratedForLoop(node);
+        this.visitIteratedForLoop(node);
     }
 
     visitForOfStatement(node){
-        visitIteratedForLoop(node);
+        this.visitIteratedForLoop(node);
     }
 
-    processFunctionDeclaration(node, dummy_function){      
+    setFunctionName(node, dummy_function){
+        if (node.type == "MethodDefinition")
+            return node.key.name;
         var function_name = null;
-        if (!dummy_function)
+        if (!dummy_function && !(node.id==null))
             function_name = node.id.name;
         if (function_name == null){
-            function_name = createFunctionName();           
+            function_name = this.createFunctionName();           
         }
-        this.cfg_nodes[this.current_class][function_name] = {};
-        this.current_function = function_name;
+        return function_name;
+    }
+
+    processFunctionContent(node, function_name){
+        // this.cfg_nodes[this.current_class][function_name] = {};
+        // this.current_function = function_name;
         this.initMethodStructures(this.current_class, function_name);
-        this.current_function_stack[this.current_class].push(function_name);       
+        var current_function_end = this.createEndBlockNode("FunctionEnd", node);
+        this.function_end[this.current_class][this.current_function] = current_function_end;
+        // this.current_function_stack[this.current_class].push(function_name);       
         // if (!(this.current_function_stack == GLOBAL_METHOD))
         //     this.addToCFG(node);   
         var key = this.addToCFG(node);
         this.node_stack[this.current_class][this.current_function].push(key);
         this.visit(node.body);
+        this.connectPreviousNodeAsParent(current_function_end);  // connect switch end as child of last statement in the switch
         this.popUntilNode(key);
         this.node_stack[this.current_class][this.current_function].pop();
         this.deleteMethodStructures(this.current_class, this.current_function); // going out of this method
-        this.current_function_stack[this.current_class].pop();     
-        var stack_len = this.current_function_stack[this.current_class].length;
-        this.current_function = this.current_function_stack[this.current_class][stack_len-1];       
+        
+    }
+    
+    processFunctionDeclaration(node, dummy_function){      
+        var function_name = this.setFunctionName(node, dummy_function);
+        this.processFunctionContent(node, function_name);      
     }
 
     // To get the parameters of a method - this.cfg_nodes[method_id].parser_node.parameters
     visitFunctionDeclaration(node){
-        this.processFunctionDeclaration(node);
+        var function_name = this.setFunctionName(node, false);
+        this.processFunctionContent(node, function_name);   
     }
 
     visitDefaultNode(node){
@@ -344,22 +396,32 @@ class CFGNode{
     }
 
     visitIfStatement(node){
-        console.log("visit IfStatement");
-        this.addToCFG(node);  
-        var node_str = this.nodeStr(node);
+        
+        var node_str = this.addToCFG(node);  
         this.node_stack[this.current_class][this.current_function].push(node_str);  
         var after_if_node_key = this.createEndBlockNode("IfEndBlock", node);
-        this.cfg_nodes[this.current_class][this.current_function][node_str].left = this.nodeStr(node.consequent);
-        this.cfg_nodes[this.current_class][this.current_function][node_str].test = node.test;
+        var child_str = this.nodeStr(node.consequent);
+        this.cfg_nodes[this.current_class][this.current_function][node_str].left = child_str;       
+        if (node.test){
+            this.cfg_nodes[this.current_class][this.current_function][node_str].test = node.test;
+            this.visitExpression(node.test);
+        }
 
         this.visit(node.consequent);  // dfs
-        this.connectPathLeafToNode(after_if_node_key);
+        this.cfg_nodes[this.current_class][this.current_function][child_str].parents.push(node_str);
+        this.connectPreviousNodeAsParent(after_if_node_key);
         this.popUntilNode(node_str);
         if (node.alternate) {  // else branch
-            this.cfg_nodes[this.current_class][this.current_function][node_str].right = this.nodeStr(node.alternate);
+            child_str = this.nodeStr(node.alternate);
+            this.cfg_nodes[this.current_class][this.current_function][node_str].right = child_str;
             this.visit(node.alternate);
-            this.connectPathLeafToNode(after_if_node_key);
+            this.cfg_nodes[this.current_class][this.current_function][child_str].parents.push(node_str);
+            this.connectPreviousNodeAsParent(after_if_node_key);
             this.popUntilNode(node_str);
+        }
+        else{
+            this.cfg_nodes[this.current_class][this.current_function][node_str].right = after_if_node_key;
+            this.cfg_nodes[this.current_class][this.current_function][after_if_node_key].parents.push(node_str);
         }
         this.node_stack[this.current_class][this.current_function].pop();  // pop the if statement
         this.node_stack[this.current_class][this.current_function].push(after_if_node_key);   // push the dummy end block  
@@ -367,7 +429,7 @@ class CFGNode{
 
 
     // label: statement
-    visitLabeledStatement(node){
+    visitLabelledStatement(node){
         this.addToCFG(node);
         this.node_stack[this.current_class][this.current_function].push(this.nodeStr(node));
         var end_labeled_block_key  = this.createEndBlockNode("LabeledBlockEnd", node);
@@ -379,15 +441,18 @@ class CFGNode{
     }
 
     popNonBranchingAncestors(){
-        var function_stack_len = this.node_stack[this.current_class][this.current_function].length;
-        var last_key = this.node_stack[this.current_class][this.current_function][function_stack_len - 1];
-        var last_node = this.cfg_nodes[this.current_class][this.current_function][last_key];       
-        while (!this.isBranchingNode(last_node.parser_node)){
-            this.node_stack[this.current_class][this.current_function].pop();
-            function_stack_len = this.node_stack[this.current_class][this.current_function].length;
-            last_key = this.node_stack[this.current_class][this.current_function][function_stack_len - 1];
-            last_node = this.cfg_nodes[this.current_class][this.current_function][last_key]; 
-        }
+        var function_stack_len = this.node_stack[this.current_class][this.current_function].length; 
+        var ended = false;              
+        while (function_stack_len > 0 && !ended){
+            var last_key = this.node_stack[this.current_class][this.current_function][function_stack_len - 1];   
+            var last_node = this.cfg_nodes[this.current_class][this.current_function][last_key];   
+            if(!this.isBranchingNode(last_node.parser_node)){
+                this.node_stack[this.current_class][this.current_function].pop();
+                function_stack_len = this.node_stack[this.current_class][this.current_function].length;
+            }
+            else    
+                ended = true;
+        }   
     }
 
     popUntilNode(node_key)
@@ -447,16 +512,15 @@ class CFGNode{
         // var last_in_block = this.cfg_nodes[this.current_class][this.current_function][last_key];
         // last_in_block.left = end_block_key;
         // this.cfg_nodes[this.current_class][this.current_function][end_block_key].parents.push(last_in_block);
-        this.connectPathLeafToNode(end_block_key, false); // don't connect jump nodes to end block. They are treated 
+        this.connectPreviousNodeAsParent(end_block_key); // don't connect jump nodes to end block. They are treated 
         // in the jump statement.
         this.node_stack[this.current_class][this.current_function].push(end_block_key);
     }
 
     // Add the loop head to the cfg. Create a dummy node for after the loop and push it to the end nodes stack.
     beforeLoop(node){
-        this.addToCFG(node);
+        var node_str = this.addToCFG(node);
         this.node_stack[this.current_class][this.current_function].push(node_str);
-        var node_str = this.nodeStr(node); 
         this.cfg_nodes[this.current_class][this.current_function][node_str].test = node.test;
         var end_loop_key = this.createEndBlockNode("EndLoopNode", node);
         this.loop_stack[this.current_class][this.current_function].push(node_str);
@@ -465,6 +529,7 @@ class CFGNode{
     }
 
     afterLoop(end_loop_key){
+        this.connectPreviousNodeAsParent(end_loop_key);
         this.popNonBranchingAncestors(); // now the loop head should be at the top of the stack
         this.loop_stack[this.current_class][this.current_function].pop();
         this.loop_switch_end_stack[this.current_class][this.current_function].pop();
@@ -534,8 +599,7 @@ class CFGNode{
         this.node_stack[this.current_class][this.current_function].push(node_str);  
         var after_switch_node_key = this.createEndBlockNode("SwitchEndBlock", node);
         this.loop_switch_end_stack[this.current_class][this.current_function].push(after_switch_node_key);
-        
-
+ 
         for (var c in node.cases){
             var switch_depth = this.current_case[this.current_class][this.current_function].length;
             this.current_case[this.current_class][this.current_function][switch_depth-1]++;
@@ -596,7 +660,7 @@ class CFGNode{
         for (var st in node.consequent){
             this.visit(node.consequent[st]);
         }
-        // this.connectPathLeafToNode(after_case_node_key, false); // for the case the case block does not end with break.
+        // this.connectPreviousNodeAsParent(after_case_node_key, false); // for the case the case block does not end with break.
         // this.popUntilNode(node_str);
         // this.node_stack[this.current_class][this.current_function].pop(); // pop the case node
         // this.node_stack[this.current_class][this.current_function].push(after_case_node_key);   // push the dummy end block 
@@ -639,22 +703,25 @@ class CFGNode{
     processClassDeclaration(node){
         console.log("visitClassDeclaration ", node);
         var class_name = node.id;
-        if (class_name == null){
-            class_name = createClassName();           
+        if (class_name == null || node.id.name == null){
+            class_name = this.createClassName(node);           
         }
-        this.current_class_stack.push(class_name);
-        this.current_class = this.current_class_stack[this.current_class_stack.length - 1];
+        else
+            class_name = node.id.name;
+        // this.current_class_stack.push(class_name);
+        // this.current_class = class_name;
+        // this.cfg_nodes[class_name] = {};
         this.initClassStructures(class_name);
         this.visit(node.body);
         this.deleteClassStructures(class_name);
     }
 
     visitClassDeclaration(node){
-        this.processClassDeclaration();
+        this.processClassDeclaration(node);
     }
 
     visitClassExpression(node){
-        this.processClassDeclaration();
+        this.processClassDeclaration(node);
     }
 
     visitClassBody(node){
@@ -674,27 +741,11 @@ class CFGNode{
     //     kind: 'method' | 'constructor';
     //     static: boolean;
     // }
+    // Creates a function in the cfg structures with the name of the method (from node.key).
     visitMethodDefinition(node){
         this.visitExpression(node.key);
-        this.visit(node.value);
-    }
-
-    //////////////////////////////////////////////////////////
-    // Expression visitor
-    //////////////////////////////////////////////////////////
-    createFunctionName(){
-        var function_name = "DUMMY_FUNCTION" + this.current_function_stack_id;
-        this.current_function_stack_id++;
-        return function_name;
-    }
-
-    visitFunctionExpression(node){
-        this.processFunctionDeclaration(node);
-    }
-
-    visitExpressionStatement(node){
-            this.visitDefaultNode(node);
-            this.visitExpression(node.expression);
+        var function_name = this.setFunctionName(node, false);
+        this.processFunctionContent(node.value, function_name); // process the FunctionExpression node
     }
 
     visitVariableDeclaration(node){
@@ -710,16 +761,66 @@ class CFGNode{
     visitTryStatement(node){
         var key = this.addToCFG(node);
         this.node_stack[this.current_class][this.current_function].push(key);
+        var after_try_node_key = this.createEndBlockNode("TryEndBlock", node);
         this.visit(node.block);
         this.catch_clauses[this.current_class][this.current_function][key] = this.nodeStr(node.handler);
         this.visit(node.handler); // new functions for catch clauses
-        this.visit(node.finalizer)
+        if (node.finalizer)
+            this.visit(node.finalizer);
+        this.connectPreviousNodeAsParent(after_try_node_key);  // connect switch end as child of last statement in the switch
+        this.popUntilNode(key); 
+        this.node_stack[this.current_class][this.current_function].pop();  // pop the trystatement node
+        this.node_stack[this.current_class][this.current_function].push(after_try_node_key);   // push the dummy end block  
     }
 
 
-    // Create a new function and process the catch clause as a function.
+    // Create a new function in cfg_nodes and process the catch clause as a function.
+    // todo: Create another dictionary that stores try to catch function.
     visitCatchClause(node){
         this.processFunctionDeclaration(node, true);
     }
-   
-};
+
+    visitReturnStatement(node){
+        var key = this.addToCFG(node);
+        if (node.argument){
+            this.visitExpression(node.argument);
+        }
+        var current_function_end = this.function_end[this.current_class][this.current_function];
+        this.cfg_nodes[this.current_class][this.current_function][current_function_end].parents.push(key);
+        this.cfg_nodes[this.current_class][this.current_function][key].left = current_function_end;
+        this.node_stack[this.current_class][this.current_function].push(key);
+    }  
+
+
+    //////////////////////////////////////////////////////////
+    // Expression visitor
+    //////////////////////////////////////////////////////////
+    createFunctionName(){
+        var function_name = "DUMMY_FUNCTION" + this.current_function_stack_id;
+        this.current_function_stack_id++;
+        return function_name;
+    }
+
+    createClassName(){
+        var class_name = "DUMMY_CLASS" + this.current_class_stack_id;
+        this.current_class_stack_id++;
+        return class_name;
+    }
+
+    visitFunctionExpression(node){
+        this.processFunctionDeclaration(node, true);
+    }
+
+    visitExpressionStatement(node){
+            this.visitDefaultNode(node);
+            this.visitExpression(node.expression);
+    }
+
+    visitCallExpression(node){
+        var num_args = node.arguments.length
+        for (var arg=0; arg<num_args; arg++){
+            this.visitExpression(node.arguments[arg]);
+        }
+    }
+
+};  

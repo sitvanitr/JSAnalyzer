@@ -26,7 +26,7 @@ var parse_options = {
         sourceType: "module"
     };
 
-var parser_config = {range: true};
+var parser_config = {range: true, loc:true};
 
 //var walk_options = {
 //                    Literal : Literal,
@@ -36,12 +36,41 @@ var parser_config = {range: true};
 //                    };
 
 //var input_file = "D:\\dev\\static\\js-parsing\\nodejs-example.js";
-// var input_file = "D:\\dev\\static\\antlr\\javascript\\js-slicing\\examples\\web-components-examples-master\\popup-info-box-web-component\\main.js";
-// var input_file = "D:\\dev\\static\\js-examples\\if.js";
-// var input_file = "D:\\dev\\static\\js-examples\\small-if.js";
-// var input_file = "D:\\dev\\static\\js-examples\\switch-end-default.js";
-// var input_file = "D:\\dev\\static\\js-examples\\switch-common-block.js";
-var input_file = "D:\\dev\\static\\js-examples\\switch-middle-default.js";
+// var input_file = "D:\\dev\\static\\js-examples\\main.js";
+// var input_file = "D:\\dev\\static\\js-examples\\branching\\if.js";
+// var input_file = "D:\\dev\\static\\js-examples\\branching\\small-if.js";
+// var input_file = "D:\\dev\\static\\js-examples\\branching\\switch-end-default.js";
+// var input_file = "D:\\dev\\static\\js-examples\\branching\\switch-common-block.js";
+// var input_file = "D:\\dev\\static\\js-examples\\branching\\switch-middle-default.js";
+// var input_file = "D:\\dev\\static\\js-examples\\loops\\for-var.js";
+// var input_file = "D:\\dev\\static\\js-examples\\loops\\for-true.js";
+// var input_file = "D:\\dev\\static\\js-examples\\loops\\for-no-update.js";
+// var input_file = "D:\\dev\\static\\js-examples\\loops\\small-while.js";
+// var input_file = "D:\\dev\\static\\js-examples\\loops\\for-in.js";
+// var input_file = "D:\\dev\\static\\js-examples\\branching\\try.js";
+// var input_file = "D:\\dev\\static\\js-examples\\branching\\small-try.js";
+// var input_file = "D:\\dev\\static\\js-examples\\jump\\break.js";
+// var input_file = "D:\\dev\\static\\js-examples\\jump\\continue.js";
+// var input_file = "D:\\dev\\static\\js-examples\\jump\\return1.js";
+// var input_file = "D:\\javascript\\learn\\samples\\webgl\\particles\\demo.js";
+// var input_file = "D:\\javascript\\learn\\samples\\webgl\\array-unit-tests\\tests.js";
+// var input_file = "D:\\javascript\\learn\\samples\\webgl\\image-texture-test\\demo.js";
+// var input_file = "D:\\javascript\\learn\\samples\\webgl\\procedural-texture-test\\demo.js";
+// var input_file = "D:\\javascript\\learn\\samples\\webgl\\resources\\cameracontroller.js";
+// var input_file = "D:\\javascript\\learn\\samples\\webgl\\resources\\fpscounter.js";
+// var input_file = "D:\\dev\\static\\antlr\\javascript\\examples\\ArrowFunctions.js";
+// var input_file = "D:\\dev\\static\\antlr\\javascript\\examples\\Classes.js";
+// var input_file = "D:\\dev\\static\\antlr\\javascript\\examples\\ClassInNonGlobalStrict.js";
+// var input_file = "D:\\dev\\static\\antlr\\javascript\\examples\\Constants.js";
+// var input_file = "D:\\dev\\static\\antlr\\javascript\\examples\\StrictFunctions.js";
+// var input_file = "D:\\dev\\static\\js-examples\\web-components-examples-master\\composed-composed-path\\main.js";
+var input_file = "D:\\dev\\static\\js-examples\\web-components-examples-master\\defined-pseudo-class\\main.js";
+// var input_file = "D:\\dev\\static\\js-examples\\web-components-examples-master\\editable-list\\main.js";
+// var input_file = "D:\\dev\\static\\js-examples\\web-components-examples-master\\edit-word\\main.js";
+// var input_file = "D:\\dev\\static\\js-examples\\web-components-examples-master\\element-details\\main.js";
+// var input_file = "D:\\dev\\static\\js-examples\\web-components-examples-master\\expanding-list-web-component\\main.js";
+// var input_file = "D:\dev\static\js-examples\web-components-examples-master\host-selectors\\main.js"
+
 
 var file_str;
 function readToString(){
