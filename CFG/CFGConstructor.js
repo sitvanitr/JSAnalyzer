@@ -4,24 +4,24 @@ ASTVisitor = require('../AST/ASTVisitor');
 var PrintCFG = require("./PrintCFG");
 ///////////////////////////////////////////////////////////
 // cfg structure:
-// key of node (in function) is node.type-node_start-node-end
-// // To do: we need str for endblock node too.
+// key of node (in function) is "node.type-node_start-node-end"
+
 // cfg key should be one of the following:
 // class-method-node
-// object-function-node
-// global-function-node
+// object-function-node  // not implemented yet
+// global-function-node  // not implemented yet
 
-// blockstatement in the cfg is the start-block.
+
+// For each node we keep:
+// - a list of its parents.
+// = left child, right child if exist.
+// At any time node_stack[this.current_function_stack] should contain all nodes which might have a direct successor which was not visited yet.
 // Statement are popped from this.node_stack when they are no longer needed to be attached as a parent.
 
-
-// For each node we keep - a list of its parents.
-// left child, right child if exist.
-// At any time node_stack[this.current_function_stack] should contain all nodes which might have a direct successor which was not visited yet.
-// For now it is poped only in branch nodes.
-
 // If FunctionExpression/ClassExpression is named, then the name is local to the class/function body.
-// A catch clause is treated as a new dummy function.
+// new dummy functions are created for:
+// - A catch clause.
+// - FunctionExpression
 
 // todo:
 // - Currently a return node has no children. Add dummy function end node and connect it as the return left child.
@@ -224,7 +224,7 @@ class CFGNode{
         delete this.function_end[class_name][function_name];
     }
 
-    // Here node in CFGNode. node.parser_node is either null (if new node) or the node returned in parsing.
+    // node is a CFGNode. node.parser_node is either null (if new node created by the constructor) or the node returned in parsing.
     nodeKey(node){
         var node_str = "";
         if (node.parser_node)
@@ -234,6 +234,8 @@ class CFGNode{
         return node_str;
     }
 
+    // key of a dummy EndBlock node.
+    // node 
     endBlockKey(node, block_head){
         var node_str = "Dummy" + "-" + node.type + "-" + this.nodeStr(block_head);
         return node_str;
@@ -292,6 +294,8 @@ class CFGNode{
         return node_str;
     }
 
+    // end_block_type - a string corresponding to the type of block "ForEnd", "SwitchHead" etc. 
+    // block_head - the parser_node beginning the block (forstatement, switchstatement etc).
     createEndBlockNode(end_block_type, block_head)
     {
         var end_block = new CFGNode(null, this.current_node, end_block_type);      
@@ -323,6 +327,7 @@ class CFGNode{
         this.afterLoop(end_loop_key);
     }
 
+    // for ForInStatement and ForOfStatement
     visitIteratedForLoop(node){
         var for_key = this.addToCFG(node);
         this.node_stack[this.current_class][this.current_function].push(for_key);
@@ -360,23 +365,21 @@ class CFGNode{
         return function_name;
     }
 
+    // node - parser node
+    // function_name - either a dummy name or the name given by the parser node
     processFunctionContent(node, function_name){
-        // this.cfg_nodes[this.current_class][function_name] = {};
-        // this.current_function = function_name;
+        // set all structures corresponding to [current_class][function_name]
         this.initMethodStructures(this.current_class, function_name);
         var current_function_end = this.createEndBlockNode("FunctionEnd", node);
         this.function_end[this.current_class][this.current_function] = current_function_end;
-        // this.current_function_stack[this.current_class].push(function_name);       
-        // if (!(this.current_function_stack == GLOBAL_METHOD))
-        //     this.addToCFG(node);   
+        
         var key = this.addToCFG(node);
         this.node_stack[this.current_class][this.current_function].push(key);
         this.visit(node.body);
-        this.connectPreviousNodeAsParent(current_function_end);  // connect switch end as child of last statement in the switch
-        this.popUntilNode(key);
+        this.connectPreviousNodeAsParent(current_function_end);  // connect function end as child of last statement in the function
+        this.popUntilNode(key);  // delete all function statements from the stack;
         this.node_stack[this.current_class][this.current_function].pop();
-        this.deleteMethodStructures(this.current_class, this.current_function); // going out of this method
-        
+        this.deleteMethodStructures(this.current_class, this.current_function); // going out of this method       
     }
     
     processFunctionDeclaration(node, dummy_function){      
@@ -384,12 +387,13 @@ class CFGNode{
         this.processFunctionContent(node, function_name);      
     }
 
-    // To get the parameters of a method - this.cfg_nodes[method_id].parser_node.parameters
+    // To get the parameters of a method - this.cfg_nodes[current_class][method_id].parser_node.parameters
     visitFunctionDeclaration(node){
         var function_name = this.setFunctionName(node, false);
         this.processFunctionContent(node, function_name);   
     }
 
+    // For nodes that do not have a special visit function.
     visitDefaultNode(node){
         var key = this.addToCFG(node);
         this.node_stack[this.current_class][this.current_function].push(key);
@@ -419,7 +423,7 @@ class CFGNode{
             this.connectPreviousNodeAsParent(after_if_node_key);
             this.popUntilNode(node_str);
         }
-        else{
+        else{  // no else, connect if node right to the end of the if.
             this.cfg_nodes[this.current_class][this.current_function][node_str].right = after_if_node_key;
             this.cfg_nodes[this.current_class][this.current_function][after_if_node_key].parents.push(node_str);
         }
@@ -575,9 +579,9 @@ class CFGNode{
         this.loop_switch_end_stack[this.current_class][this.current_function].pop();
     }
 
-    // put default case as last in the array of cases
-    // not effective because in the case of default in the middle, when the last case does not have a break we don't 
-    // want it to continue to the default.
+    // putting default case as last in the array of cases is not effective because in the case of default in the middle, 
+    // when the last case does not have a break we don't 
+    // want it to continue to the default. so the cases are processed in the order they appear in the source.
     // sortSwitchCases(node, node_str){
     //     this.switch_cases[this.current_class][this.current_function][node_str] = [];
     //     var ind = 0;
@@ -593,6 +597,9 @@ class CFGNode{
     //     this.switch_cases[this.current_class][this.current_function][node_str][ind] = default_case;
     // }
 
+    // putting default case as last in the array of cases is not effective because in the case of default in the middle, 
+    // when the last case does not have a break we don't 
+    // want it to continue to the default. so the cases are processed in the order they appear in the source.
     visitSwitchStatement(node){   
         var node_str = this.addToCFG(node);   
         this.initSwitchData(node, node_str);  
